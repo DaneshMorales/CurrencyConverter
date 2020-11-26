@@ -1,0 +1,135 @@
+Private Sub CommandButton1_Click()
+If TextBox1.Text = "" Then
+    MsgBox ("Please do not leave this blank!")
+ElseIf Not IsNumeric(TextBox1.Text) Then
+    MsgBox ("Please insert a number!")
+ElseIf TextBox1.Text < 0 Then
+    MsgBox ("Please do not insert negative numbers!")
+ElseIf Not IsDate(TextBox3) Then
+    MsgBox ("Please insert a proper date format!")
+    
+Else
+Application.ScreenUpdating = False
+Worksheets("Sheet1").Visible = True
+Dim url As String, slash As Integer, slashtwo As Integer, day As String, month As String, year As String
+
+slash = InStr(TextBox3, "/")
+month = Left(TextBox3, slash - 1)
+If Len(month) = 1 Then month = "0" & month
+
+slashtwo = InStr(slash + 1, TextBox3, "/")
+day = Mid(TextBox3, slash + 1, Len(slashtwo) - 1)
+If Len(day) = 1 Then day = "0" & day
+
+
+year = Right(TextBox3, 4)
+Application.ScreenUpdating = False
+    url = "URL;https://www.xe.com/currencytables/?from=USD&date=" & year & "-" & month & "-" & day
+    With Worksheets("Sheet1").QueryTables.Add(Connection:=url, Destination:=Worksheets("Sheet1").Range("A1"))
+        .Name = "My Query"
+        .RowNumbers = False
+        .FillAdjacentFormulas = False
+        .PreserveFormatting = True
+        .RefreshOnFileOpen = False
+        .BackgroundQuery = False
+        .RefreshStyle = xlOverwriteCells
+        .SavePassword = False
+        .SaveData = True
+        .AdjustColumnWidth = True
+        .RefreshPeriod = 0
+        .WebSelectionType = xlEntirePage
+        .WebFormatting = xlWebFormattingNone
+        .WebPreFormattedTextToColumns = True
+        .WebConsecutiveDelimitersAsOne = True
+        .WebSingleBlockTextImport = False
+        .WebDisableDateRecognition = False
+        .WebDisableRedirections = False
+        .Refresh BackgroundQuery:=False
+    End With
+Worksheets("Sheet1").Activate
+Worksheets("Sheet1").Range("A15").Select
+Dim First As Double, Second As Double
+First = ActiveCell.Offset(ComboBox1.ListIndex, 2)
+Second = ActiveCell.Offset(ComboBox2.ListIndex, 2)
+Worksheets("Sheet1").Visible = False
+TextBox2 = Round(TextBox1.Text * Second / First, 2)
+End If
+End Sub
+
+Private Sub CommandButton2_Click()
+Dim i As Integer, n As Integer
+Sheets("30").Visible = True
+Sheets("30").Select
+Range("A30").Select
+For i = 30 To 1 Step -1
+    Range("A" & 30 - i + 1) = DateAdd("d", -i + 1, TextBox3.Text)
+Next i
+
+For n = 1 To 30
+Dim url As String, slash As Integer, slashtwo As Integer, day As String, month As String, year As String
+Range("A" & n).Select
+slash = InStr(ActiveCell, "/")
+month = Left(ActiveCell, slash - 1)
+If Len(month) = 1 Then month = "0" & month
+
+slashtwo = InStr(slash + 1, ActiveCell, "/")
+day = Mid(ActiveCell, slash + 1, Len(slashtwo) - 1)
+If Len(day) = 1 Then day = "0" & day
+
+
+year = Right(ActiveCell, 4)
+Application.ScreenUpdating = False
+    url = "URL;https://www.xe.com/currencytables/?from=USD&date=" & year & "-" & month & "-" & day
+    With Worksheets("Sheet1").QueryTables.Add(Connection:=url, Destination:=Worksheets("Sheet1").Range("A1"))
+        .Name = "My Query"
+        .RowNumbers = False
+        .FillAdjacentFormulas = False
+        .PreserveFormatting = True
+        .RefreshOnFileOpen = False
+        .BackgroundQuery = False
+        .RefreshStyle = xlOverwriteCells
+        .SavePassword = False
+        .SaveData = True
+        .AdjustColumnWidth = True
+        .RefreshPeriod = 0
+        .WebSelectionType = xlEntirePage
+        .WebFormatting = xlWebFormattingNone
+        .WebPreFormattedTextToColumns = True
+        .WebConsecutiveDelimitersAsOne = True
+        .WebSingleBlockTextImport = False
+        .WebDisableDateRecognition = False
+        .WebDisableRedirections = False
+        .Refresh BackgroundQuery:=False
+    End With
+Worksheets("Sheet1").Activate
+Worksheets("Sheet1").Range("A15").Select
+Dim First As Double, Second As Double
+First = ActiveCell.Offset(ComboBox1.ListIndex, 2)
+Second = ActiveCell.Offset(ComboBox2.ListIndex, 2)
+Worksheets("30").Activate
+Worksheets("30").Range("B" & n) = Round(TextBox1.Text * Second / First, 2)
+Next n
+Sheets("30").Visible = False
+Sheets("Last 30 days").Visible = True
+Sheets("Last 30 days").Activate
+End Sub
+
+Private Sub CommandButton3_Click()
+Unload UserForm1
+End Sub
+
+Sub OpenForm()
+Dim i As Integer, DateArray As Variant, Today As String
+Sheets("Currencies").Select
+Range("A1").Select
+For i = 1 To WorksheetFunction.CountA(Columns("A:A"))
+    UserForm1.ComboBox1.AddItem ActiveCell.Offset(i - 1, 0) & " - " & ActiveCell.Offset(i - 1, 1)
+    UserForm1.ComboBox2.AddItem ActiveCell.Offset(i - 1, 0) & " - " & ActiveCell.Offset(i - 1, 1)
+Next i
+
+UserForm1.ComboBox1.Text = Range("A1") & " - " & Range("B1")
+UserForm1.ComboBox2.Text = Range("A2") & " - " & Range("B2")
+DateArray = Split(Now())
+UserForm1.TextBox3 = DateArray(0)
+UserForm1.Show
+End Sub
